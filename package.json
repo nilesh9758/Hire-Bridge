@@ -1,0 +1,9 @@
+{
+  "name": "hirebridge",
+  "private": true,
+  "type": "module",
+  "description": "HireBridge placement portal. Vercel deployment root: serves client/client as static files and server/server via api/index.js",
+  "engines": {
+    "node": ">=20"
+  }
+}

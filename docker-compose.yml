@@ -1,0 +1,57 @@
+# Full stack in Docker:
+#   docker compose up --build -d     # site on http://localhost:8080
+#   docker compose down              # stop everything
+# MongoDB comes from MONGODB_URI in server/server/.env (Atlas). Redis runs in a container
+# here, so the background email queue (BullMQ) and its worker are switched on.
+# More worker copies: docker compose up -d --scale worker=3
+name: hirebridge
+
+services:
+  redis:
+    image: redis:7-alpine
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      retries: 5
+
+  api:
+    build: ./server/server
+    env_file: ./server/server/.env
+    environment:
+      PORT: 3000
+      CORS_ORIGIN: http://localhost:8080
+      REDIS_URL: redis://redis:6379
+      QUEUE_EMAILS: "true"
+      TRUST_PROXY: "true"
+    ports:
+      - "3000:3000"
+    depends_on:
+      redis: { condition: service_healthy }
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3000/api/health"]
+      interval: 10s
+      start_period: 20s
+      retries: 5
+
+  worker:
+    build: ./server/server
+    command: ["node", "src/worker.js"]
+    env_file: ./server/server/.env
+    environment:
+      REDIS_URL: redis://redis:6379
+      QUEUE_EMAILS: "true"
+    depends_on:
+      redis: { condition: service_healthy }
+
+  web:
+    build: ./client/client
+    ports:
+      - "8080:80"
+    depends_on:
+      api: { condition: service_healthy }
+
+volumes:
+  redis-data:

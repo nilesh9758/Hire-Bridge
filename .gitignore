@@ -1,0 +1,39 @@
+# Node.js & npm / yarn dependencies
+/node_modules/
+client/client/node_modules
+server/server/node_modules/
+
+# Logs
+npm-debug.log
+yarn-error.log
+logs/
+*.log
+
+# Environment files (sensitive data)
+.env
+
+# Build output
+client/client/build/
+server/server/build/
+
+# OS-specific files
+.DS_Store  # macOS
+Thumbs.db  # Windows
+
+# IDE/Editor files
+.vscode/
+.idea/
+
+# Optional: Ignore testing output
+test-report/
+
+# Package lock files
+package-lock.json
+yarn.lock
+
+# Other
+*.tgz
+*.swp
+
+# Vercel
+.vercel
